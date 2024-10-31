@@ -2,6 +2,7 @@ from bacteria import bacteria
 from chemiotaxis import chemiotaxis
 import numpy
 import random  # Importa random para usar en mutaciones
+import matplotlib.pyplot as plt  # Importar matplotlib para visualización
 
 # Inicializa la población
 poblacion = []
@@ -16,6 +17,10 @@ veryBest = bacteria(path)
 tempBacteria = bacteria(path)
 original = bacteria(path)
 globalNFE = 0
+
+# Listas para almacenar el progreso
+fitness_history = []  # Para almacenar el mejor fitness en cada iteración
+nfe_history = []      # Para almacenar el NFE global en cada iteración
 
 # Parámetros iniciales
 dAttr = 0.15  # Aumentamos ligeramente la atracción
@@ -102,6 +107,10 @@ for iteracion in range(iteraciones):
 
     print("Iteración:", iteracion, "Fitness:", veryBest.fitness, "NFE:", globalNFE)
 
+    # Almacena el progreso
+    fitness_history.append(veryBest.fitness)
+    nfe_history.append(globalNFE)
+
     # Aplicar mutaciones a la población
     for b in poblacion:
         mutar_bacteria(b)
@@ -117,3 +126,27 @@ for iteracion in range(iteraciones):
 # Muestra el genoma de la mejor bacteria y valida las secuencias
 veryBest.showGenome()
 validaSecuencias(path, veryBest)
+
+# Visualización de los resultados
+plt.figure(figsize=(12, 6))
+
+# Graficar fitness
+plt.subplot(2, 1, 1)
+plt.plot(fitness_history, marker='o', color='blue', label='Fitness')
+plt.title('Progreso del Fitness a lo largo de las Iteraciones')
+plt.xlabel('Iteraciones')
+plt.ylabel('Fitness')
+plt.grid()
+plt.legend()
+
+# Graficar NFE
+plt.subplot(2, 1, 2)
+plt.plot(nfe_history, marker='s', color='red', label='NFE')
+plt.title('Progreso de NFE a lo largo de las Iteraciones')
+plt.xlabel('Iteraciones')
+plt.ylabel('NFE')
+plt.grid()
+plt.legend()
+
+plt.tight_layout()  # Ajustar el layout
+plt.show()  # Mostrar los gráficos
