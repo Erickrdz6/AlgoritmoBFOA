@@ -22,6 +22,10 @@ wAttr = 0.3   # Aumentamos la fuerza de atracción
 hRep = 0.05   # Aumentamos la repulsión
 wRep = 15     # Aumentamos la fuerza de repulsión
 mutation_rate = 0.1  # Tasa de mutación inicial
+umbral_convergencia = 0.01  # Umbral para verificar convergencia
+tasa_diversidad = 0.1  # Probabilidad de introducir diversidad
+tasa_nueva = 0.2  # Proporción de nuevas bacterias a introducir
+min_ciclo = 2  # Ciclo mínimo de repulsión
 
 # Función para clonar la mejor bacteria
 def clonaBest(veryBest, best):
@@ -44,7 +48,7 @@ def validaSecuencias(path, veryBest):
 def ajustaParametros(prevFitness, currentFitness):
     global dAttr, wAttr, hRep, wRep
     mejoraFitness = currentFitness - prevFitness
-    if mejoraFitness < 0.01:  # Umbral bajo de mejora para ajustar
+    if mejoraFitness < umbral_convergencia:  # Umbral bajo de mejora para ajustar
         dAttr *= 1.05
         wAttr *= 1.05
         hRep = dAttr
@@ -69,6 +73,13 @@ def mutar_bacteria(bacteria):
             position = random.randint(0, len(seq) - 1)
             seq[position] = random.choice(['A', 'T', 'C', 'G'])  # Asumiendo secuencias de ADN
             bacteria.matrix.seqs[i] = ''.join(seq)
+
+# Función para introducir diversidad en la población
+def introducir_diversidad(bacterias, tasa_diversidad):
+    if random.random() < tasa_diversidad:
+        num_nuevas_bacterias = int(len(bacterias) * tasa_nueva)
+        nuevas_bacterias = [bacteria(path) for _ in range(num_nuevas_bacterias)]
+        bacterias.extend(nuevas_bacterias)
 
 # Algoritmo principal
 prevBestFitness = float('-inf')
@@ -95,6 +106,9 @@ for iteracion in range(iteraciones):
     # Aplicar mutaciones a la población
     for b in poblacion:
         mutar_bacteria(b)  # Mutar cada bacteria en la población
+
+    # Introducir diversidad en la población
+    introducir_diversidad(poblacion, tasa_diversidad)
 
     chemio.eliminarClonar(path, poblacion)
     chemio.insertRamdomBacterias(path, numRandomBacteria, poblacion)
