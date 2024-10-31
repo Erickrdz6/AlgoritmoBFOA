@@ -3,6 +3,7 @@ from chemiotaxis import chemiotaxis
 import numpy
 import random  # Importa random para usar en mutaciones
 
+# Inicializa la población
 poblacion = []
 path = "C:\\secuenciasBFOA\\multiFasta.fasta"  # Asegúrate de usar \\ en las rutas
 numeroDeBacterias = 20  # Aumentamos el número de bacterias
@@ -65,10 +66,8 @@ for i in range(numeroDeBacterias):
 
 # Función para mutar una bacteria
 def mutar_bacteria(bacteria):
-    # Aquí puedes definir cómo quieres mutar la bacteria
     for i in range(len(bacteria.matrix.seqs)):
         if random.random() < mutation_rate:  # Aplica mutación según la tasa de mutación
-            # Ejemplo de mutación: reemplazar un carácter aleatorio en la secuencia
             seq = list(bacteria.matrix.seqs[i])
             position = random.randint(0, len(seq) - 1)
             seq[position] = random.choice(['A', 'T', 'C', 'G'])  # Asumiendo secuencias de ADN
@@ -85,11 +84,11 @@ def introducir_diversidad(bacterias, tasa_diversidad):
 prevBestFitness = float('-inf')
 for iteracion in range(iteraciones):
     for b in poblacion:
-        b.tumboNado(tumbo)
-        b.autoEvalua()
+        b.tumboNado(tumbo)  # Movimiento aleatorio
+        b.autoEvalua()      # Evaluación del fitness
         
     chemio.doChemioTaxis(poblacion, dAttr, wAttr, hRep, wRep)
-    globalNFE += chemio.parcialNFE  # Asegúrate de que chemio.parcialNFE esté definido en la clase
+    globalNFE += chemio.parcialNFE  # Acumula NFE global
 
     best = max(poblacion, key=lambda x: x.fitness)
     
@@ -99,17 +98,18 @@ for iteracion in range(iteraciones):
         prevBestFitness = best.fitness
     else:
         print("Convergencia alcanzada. Deteniendo ajustes de parámetros.")
-        break  # Puedes salir del bucle si la convergencia se alcanza
+        break  # Salir del bucle si la convergencia se alcanza
 
     print("Iteración:", iteracion, "Fitness:", veryBest.fitness, "NFE:", globalNFE)
 
     # Aplicar mutaciones a la población
     for b in poblacion:
-        mutar_bacteria(b)  # Mutar cada bacteria en la población
+        mutar_bacteria(b)
 
     # Introducir diversidad en la población
     introducir_diversidad(poblacion, tasa_diversidad)
 
+    # Funciones de eliminación y clonación
     chemio.eliminarClonar(path, poblacion)
     chemio.insertRamdomBacterias(path, numRandomBacteria, poblacion)
     print("Población:", len(poblacion))
